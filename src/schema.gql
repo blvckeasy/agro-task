@@ -1,0 +1,43 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Location {
+  id: Int!
+  x_coordinate: Float!
+  y_coordinate: Float!
+  events: Event!
+}
+
+type Event {
+  id: Int!
+  name: String!
+  startDate: DateTime!
+  endDate: DateTime!
+  location: Location!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Query {
+  events: [Event!]!
+}
+
+type Mutation {
+  createEvent(createEventInput: CreateEventInput!): Event!
+}
+
+input CreateEventInput {
+  name: String!
+  startDate: DateTime!
+  endDate: DateTime!
+  location: CreateLocationInput!
+}
+
+input CreateLocationInput {
+  x_coordinate: Float!
+  y_coordinate: Float!
+}
