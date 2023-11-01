@@ -1,8 +1,9 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
-import { Location } from '../location/location.entity';
 import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { Location } from '../location/location.entity';
+import { User } from '../user/user.entity';
 
-@Entity() // Make sure @Entity() is included
+@Entity()
 @ObjectType()
 export class Event {
     @PrimaryGeneratedColumn()
@@ -12,14 +13,19 @@ export class Event {
     @Column({ nullable: false })
     @Field({ nullable: false })
     name: string;
-
+    
     @Column({ type: 'timestamp' })
     @Field(type => Date)
     startDate: Date;
-
+    
     @Column({ type: 'timestamp' })
     @Field(type => Date)
     endDate: Date;
+    
+    @JoinColumn({ name: 'userId' })
+    @ManyToOne(() => User, (user) => user.events)
+    @Field(type => User)
+    user: User;
 
     @JoinColumn({ name: 'locationId' })
     @ManyToOne(() => Location, (location) => location.events)

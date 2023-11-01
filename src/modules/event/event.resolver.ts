@@ -4,7 +4,7 @@ import { Event } from "./event.entity";
 import { Args, Mutation } from '@nestjs/graphql';
 import { CreateEventInput } from './dto/create-event.input';
 
-@Resolver()
+@Resolver(of => Event)
 export class EventResolver {
     constructor (
         private eventService: EventService

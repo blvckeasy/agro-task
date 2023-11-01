@@ -18,7 +18,6 @@ export class Location {
     @Field(type => Float)
     y_coordinate: number;
 
-
     @Field(type => Event)
     @OneToMany(() => Event, (event) => event.location)
     events: Event[];

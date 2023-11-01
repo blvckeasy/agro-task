@@ -15,12 +15,14 @@ export class EventService {
 
     async createEvent(createEventInput: CreateEventInput): Promise<Event> {
         const newLocation = this.locationRepository.create(createEventInput.location);
-        const data = await this.locationRepository.save(newLocation);
-
-        createEventInput.location = data;
+        const insertLocation = await this.locationRepository.save(newLocation);
+        
+        createEventInput.location = insertLocation;
         
         const newEvent = this.eventRepository.create(createEventInput);
-        return await this.eventRepository.save(newEvent);
+        const insertEvent = await this.eventRepository.save(newEvent);
+        
+        return insertEvent
     }
     
     async fetchAll(): Promise<Event[]> {

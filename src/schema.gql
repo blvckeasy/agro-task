@@ -9,11 +9,19 @@ type Location {
   events: Event!
 }
 
+type User {
+  id: Int!
+  username: String!
+  password: String!
+  events: Event!
+}
+
 type Event {
   id: Int!
   name: String!
   startDate: DateTime!
   endDate: DateTime!
+  user: User!
   location: Location!
 }
 
