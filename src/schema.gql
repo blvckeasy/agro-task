@@ -32,6 +32,7 @@ scalar DateTime
 
 type Query {
   events: [Event!]!
+  users: [User!]!
 }
 
 type Mutation {
