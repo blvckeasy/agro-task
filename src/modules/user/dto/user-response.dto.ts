@@ -12,5 +12,5 @@ export class CreateUserResponse {
     password: string;
 
     @Field({ nullable: false })
-    token: string;
+    token?: string;
 }
