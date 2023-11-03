@@ -5,6 +5,8 @@ import { join } from 'path';
 import { EventModule } from './modules/event/event.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './modules/user/user.module';
+import { JwtModule } from '@nestjs/jwt';
+import { jwtConfig } from './config/configuration';
 
 
 @Module({
@@ -25,6 +27,7 @@ import { UserModule } from './modules/user/user.module';
       ],
       synchronize: true,
     }),
+    JwtModule.register(jwtConfig),
     EventModule,
     UserModule,
   ],

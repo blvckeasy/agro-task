@@ -33,7 +33,6 @@ scalar DateTime
 type CreateUserResponse {
   id: Float!
   username: String!
-  password: String!
   token: String!
 }
 

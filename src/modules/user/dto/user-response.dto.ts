@@ -9,8 +9,5 @@ export class CreateUserResponse {
     username: string;
 
     @Field({ nullable: false })
-    password: string;
-
-    @Field({ nullable: false })
     token?: string;
 }
