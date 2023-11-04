@@ -30,7 +30,7 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
-type CreateUserResponse {
+type UserResponse {
   id: Float!
   username: String!
   token: String!
@@ -43,7 +43,8 @@ type Query {
 
 type Mutation {
   createEvent(createEventInput: CreateEventInput!): Event!
-  createUser(createUserInput: CreateUserInput!): CreateUserResponse!
+  register(createUserInput: CreateUserInput!): UserResponse!
+  login(loginUserInput: LoginUserInput!): UserResponse!
 }
 
 input CreateEventInput {
@@ -59,6 +60,11 @@ input CreateLocationInput {
 }
 
 input CreateUserInput {
+  username: String!
+  password: String!
+}
+
+input LoginUserInput {
   username: String!
   password: String!
 }
