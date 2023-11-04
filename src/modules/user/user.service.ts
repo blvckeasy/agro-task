@@ -15,7 +15,7 @@ export class UserService {
         private jwtService: JwtService
     ) {}
     
-    async findAll (): Promise<User[]> {
+    async findAll (): Promise<UserResponse[]> {
         const users = this.userRepository.find();
         return users;
     }

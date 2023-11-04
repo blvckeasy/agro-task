@@ -38,7 +38,7 @@ type UserResponse {
 
 type Query {
   events: [Event!]!
-  users: [User!]!
+  users: [UserResponse!]!
 }
 
 type Mutation {
