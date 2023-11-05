@@ -7,6 +7,13 @@ import { UserResponse } from "./dto/user-response.dto";
 import { JwtService } from "@nestjs/jwt";
 import { convertTypes } from "src/utils/convertTypes";
 import { LoginUserInput } from "./dto/login-user.input";
+import { UserResponseInterface } from './interface/user-response.interface'
+
+export type UserResponseType = {
+    id: number;
+    username: string;
+    token?: string;
+}
 
 @Injectable()
 export class UserService {
@@ -20,7 +27,7 @@ export class UserService {
         return users;
     }
 
-    async register (createUserInput: CreateUserInput): Promise<UserResponse> {
+    async register (createUserInput: CreateUserInput, context: any): Promise<UserResponse> {
         const foundUser = await this.userRepository.findOne({
             where: {
                 username: createUserInput.username
@@ -29,26 +36,31 @@ export class UserService {
 
         if (foundUser) throw new ForbiddenException("user already have!"); 
 
+        const userAgent = context.req.headers["user-agent"];
         const newUser = this.userRepository.create(createUserInput);
-        const insertedUser = <UserResponse>(await this.userRepository.save(newUser));
+        const insertedUser = await this.userRepository.save(newUser);
 
-        insertedUser.token = await this.jwtService.signAsync(convertTypes.classToPlainObject(insertedUser));
-        return insertedUser
+        const modifiedUser: UserResponseInterface = <UserResponseInterface>convertTypes.classToPlainObject(insertedUser);
+
+        modifiedUser.token = await this.jwtService.signAsync(convertTypes.classToPlainObject({ ...modifiedUser, userAgent }));
+        return modifiedUser
     }
 
-    async login(loginUserInput: LoginUserInput): Promise<UserResponse> {
+    async login(loginUserInput: LoginUserInput, context: any): Promise<UserResponse> {
         const { username, password } = loginUserInput;
-        const foundUser = (await this.userRepository.findOne({
+        const foundUser = await this.userRepository.findOne({
             where: {
                 username, password
             }
-        })) as UserResponse
-
-
+        })
+    
         if (!foundUser) throw new UnauthorizedException()
-
-        foundUser.token = await this.jwtService.signAsync(convertTypes.classToPlainObject(foundUser));    
-
-        return foundUser
+        const userAgent = context.req.headers["user-agent"];
+    
+        delete foundUser.password
+        const modifiedUser: UserResponseInterface = <UserResponseInterface>convertTypes.classToPlainObject(foundUser);
+        
+        modifiedUser.token = await this.jwtService.signAsync(convertTypes.classToPlainObject({ ...modifiedUser, userAgent}));   
+        return modifiedUser
     }
 }
