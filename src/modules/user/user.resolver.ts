@@ -22,7 +22,7 @@ export class UserResolver {
 
     @Query(returns => [UserResponse])
     async test (
-        @Context() context,
+        @Context() context: any,
     ): Promise<UserResponse[]> {
         const { token } = context.req.headers;
 
@@ -31,8 +31,6 @@ export class UserResolver {
         const user = await this.jwtService.verifyAsync(token);
         const ctxUserAgent = context.req.headers['user-agent'];
 
-        console.log(user);
-
         if (user.userAgent !== ctxUserAgent) throw new BadGatewayException("Invalid Token");
         return this.userService.findAll();
     }
@@ -40,7 +38,7 @@ export class UserResolver {
     @Mutation(returns => UserResponse)
     register (
         @Args('createUserInput') createUserInput: CreateUserInput,
-        @Context() context,
+        @Context() context: any,
     ): Promise<UserResponse> {
         return this.userService.register(createUserInput, context);
     }
@@ -48,7 +46,7 @@ export class UserResolver {
     @Mutation(returns => UserResponse)
     login (
         @Args("loginUserInput") loginUserInput: LoginUserInput,
-        @Context() context,
+        @Context() context: any,
     ): Promise<UserResponse> {
         return this.userService.login(loginUserInput, context);
     }
