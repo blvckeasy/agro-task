@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateEventInput } from './dto/create-event.input';
 import { Location } from '../location/location.entity';
+import { User } from '../user/user.entity';
 
 
 @Injectable()
@@ -13,15 +14,17 @@ export class EventService {
         @InjectRepository(Location) private locationRepository: Repository<Location>,
     ) {}
 
-    async createEvent(createEventInput: CreateEventInput): Promise<Event> {
+    async createEvent(createEventInput: CreateEventInput, user: User): Promise<Event> {
         const newLocation = this.locationRepository.create(createEventInput.location);
         const insertLocation = await this.locationRepository.save(newLocation);
-        
-        createEventInput.location = insertLocation;
-        
-        const newEvent = this.eventRepository.create(createEventInput);
+        const createEvent = {
+            ...createEventInput,
+            user,
+            location: insertLocation 
+        }
+        const newEvent = this.eventRepository.create(createEvent);
         const insertEvent = await this.eventRepository.save(newEvent);
-        
+
         return insertEvent
     }
     
