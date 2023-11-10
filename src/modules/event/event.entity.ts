@@ -12,23 +12,27 @@ export class Event {
 
     @Column({ nullable: false })
     @Field({ nullable: false })
-    name: string;
+    title: string;
+
+    @Column()
+    @Field()
+    description: string;
     
-    @Column({ type: 'timestamp' })
-    @Field(type => Date)
+    @Column({ type: 'timestamp', nullable: false })
+    @Field(type => Date, { nullable: false })
     startDate: Date;
     
-    @Column({ type: 'timestamp' })
-    @Field(type => Date)
+    @Column({ type: 'timestamp', nullable: false })
+    @Field(type => Date, { nullable: false })
     endDate: Date;
     
     @JoinColumn({ name: 'userId' })
     @ManyToOne(() => User, (user) => user.events)
-    @Field(type => User)
+    @Field(type => User, { nullable: false })
     user: User;
 
     @JoinColumn({ name: 'locationId' })
     @ManyToOne(() => Location, (location) => location.events)
-    @Field(type => Location)
+    @Field(type => Location, { nullable: false })
     location: Location;
 }

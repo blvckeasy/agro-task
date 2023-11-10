@@ -1,11 +1,11 @@
-// event.resolver.ts
-
 import { Resolver, Query } from "@nestjs/graphql";
 import { EventService } from "./event.service";
 import { Event } from "./event.entity";
 import { Args, Mutation, Context } from '@nestjs/graphql';
 import { CreateEventInput } from './dto/create-event.input';
 import { JwtService } from "@nestjs/jwt";
+import { EditEventInput } from "./dto/edit-event.input";
+
 
 @Resolver(of => Event)
 export class EventResolver {
@@ -20,14 +20,25 @@ export class EventResolver {
         @Context() ctx: any
     ): Promise<Event> {
         const { token } = ctx.req.headers;
-
         const user = this.jwtService.verify(token);
-        
-        return this.eventService.createEvent(createEventInput, user);
+        const newEvent: Promise<Event> = this.eventService.createEvent(createEventInput, user);
+        return newEvent;
+    }
+
+    @Mutation(returns => Event)
+    editEvent (
+        @Args('editEventInput') editEventInput: EditEventInput,
+        @Context() ctx: any,
+    ): Promise<Event> {
+        const { token } = ctx.req.headers;
+        const user = this.jwtService.verify(token);
+
+        const editedEvent: Promise<Event> = this.eventService.editEvent(editEventInput, user);
+        return editedEvent
     }
 
     @Query(returns => [Event])
     events(): Promise<Event[]> {
         return this.eventService.fetchAll();
     }
-}
+}   

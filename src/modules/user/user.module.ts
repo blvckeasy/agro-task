@@ -12,5 +12,6 @@ import { jwtConfig } from "src/config/configuration";
         TypeOrmModule.forFeature([User]),
     ],
     providers: [UserService, UserResolver],
+    exports: [UserService]
 })
 export class UserModule {} 

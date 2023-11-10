@@ -18,7 +18,8 @@ type User {
 
 type Event {
   id: Int!
-  name: String!
+  title: String!
+  description: String!
   startDate: DateTime!
   endDate: DateTime!
   user: User!
@@ -44,12 +45,14 @@ type Query {
 
 type Mutation {
   createEvent(createEventInput: CreateEventInput!): Event!
+  editEvent(editEventInput: EditEventInput!): Event!
   register(createUserInput: CreateUserInput!): UserResponse!
   login(loginUserInput: LoginUserInput!): UserResponse!
 }
 
 input CreateEventInput {
-  name: String!
+  title: String!
+  description: String!
   startDate: DateTime!
   endDate: DateTime!
   location: CreateLocationInput!
@@ -58,6 +61,15 @@ input CreateEventInput {
 input CreateLocationInput {
   x_coordinate: Float!
   y_coordinate: Float!
+}
+
+input EditEventInput {
+  id: Int!
+  title: String
+  description: String
+  startDate: DateTime
+  endDate: DateTime
+  location: CreateLocationInput
 }
 
 input CreateUserInput {

@@ -8,6 +8,7 @@ import { JwtService } from "@nestjs/jwt";
 import { convertTypes } from "src/utils/convertTypes";
 import { LoginUserInput } from "./dto/login-user.input";
 import { UserResponseInterface } from './interface/user-response.interface'
+import { UserSearchParams } from "./dto/search-param.interface";
 
 export type UserResponseType = {
     id: number;
@@ -22,9 +23,14 @@ export class UserService {
         private jwtService: JwtService
     ) {}
     
-    async findAll (): Promise<UserResponse[]> {
-        const users = this.userRepository.find();
+    async findAll (): Promise<User[]> {
+        const users: Promise<User[]> = this.userRepository.find();
         return users;
+    }
+
+    async findOne(params: UserSearchParams): Promise<User> {
+        const foundUser: Promise<User> = this.userRepository.findOneBy(params);
+        return foundUser;
     }
 
     async register (createUserInput: CreateUserInput, context: any): Promise<UserResponse> {
