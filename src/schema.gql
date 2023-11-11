@@ -38,7 +38,6 @@ type UserResponse {
 }
 
 type Query {
-  events: [Event!]!
   users: [UserResponse!]!
   test: [UserResponse!]!
 }
@@ -46,6 +45,7 @@ type Query {
 type Mutation {
   createEvent(createEventInput: CreateEventInput!): Event!
   editEvent(editEventInput: EditEventInput!): Event!
+  deleteEvent(deleteEventInput: DeleteEventInput!): Event!
   register(createUserInput: CreateUserInput!): UserResponse!
   login(loginUserInput: LoginUserInput!): UserResponse!
 }
@@ -70,6 +70,10 @@ input EditEventInput {
   startDate: DateTime
   endDate: DateTime
   location: CreateLocationInput
+}
+
+input DeleteEventInput {
+  id: Int!
 }
 
 input CreateUserInput {

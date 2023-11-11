@@ -5,6 +5,7 @@ import { Args, Mutation, Context } from '@nestjs/graphql';
 import { CreateEventInput } from './dto/create-event.input';
 import { JwtService } from "@nestjs/jwt";
 import { EditEventInput } from "./dto/edit-event.input";
+import { DeleteEventInput } from "./dto/delete-event.input";
 
 
 @Resolver(of => Event)
@@ -37,8 +38,14 @@ export class EventResolver {
         return editedEvent
     }
 
-    @Query(returns => [Event])
-    events(): Promise<Event[]> {
-        return this.eventService.fetchAll();
+    @Mutation(returns => Event)
+    deleteEvent (
+        @Args('deleteEventInput') deleteEventInput: DeleteEventInput,
+        @Context() ctx: any,
+    ) {
+        const { token } = ctx.req.headers;
+        const user = this.jwtService.verify(token);
+
+        return this.eventService.deleteEvent(deleteEventInput, user);
     }
 }   

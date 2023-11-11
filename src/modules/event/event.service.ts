@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { Event } from './event.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -8,7 +8,7 @@ import { User } from '../user/user.entity';
 import { CreateEventObject } from './dto/create-event.object';
 import { EditEventInput } from './dto/edit-event.input';
 import { TokenParseUser } from '../user/dto/token-parse-user.object';
-import { UserService } from '../user/user.service';
+import { DeleteEventInput } from './dto/delete-event.input';
 
 
 @Injectable()
@@ -38,18 +38,49 @@ export class EventService {
     }
     
     async editEvent(editEventInput: EditEventInput, user: TokenParseUser): Promise<Event> {        
+        const foundUser: User = await this.userRepository.findOneBy({ id: user.id });
+        
         const foundEvent: Event = await this.eventRepository
             .createQueryBuilder("event")
             .where("event.id = :id", { id: editEventInput.id })
+            .andWhere("event.user.id = :userId", { userId: foundUser.id })
             .leftJoinAndSelect("event.user", "user")
             .leftJoinAndSelect("event.location", "location")
             .getOne();
 
+        if (!foundUser) throw new NotFoundException("User is not found!");
         if (!foundEvent) throw new NotFoundException("Event is not found!");
+
         this.eventRepository.merge(foundEvent, editEventInput);
 
         const editedEvent: Event = await this.eventRepository.save(foundEvent);
         return editedEvent;
+    }
+
+    async deleteEvent(deleteEventInput: DeleteEventInput, user: TokenParseUser): Promise<Event> {
+        const foundEvent: Event = await this.eventRepository
+            .createQueryBuilder("event")
+            .where("event.user = :id", { id: user.id })
+            .leftJoinAndSelect("event.user", "user")
+            .leftJoinAndSelect("event.location", "location")
+            .getOne();
+
+        const foundUser: User = await this.userRepository.findOneBy({ id: user.id });
+        
+        if (!foundUser) throw new NotFoundException("User is not found!");
+        if (!foundEvent) throw new NotFoundException("Event is not found!");
+        
+        const deletedEvent: Event = (await this.eventRepository
+            .createQueryBuilder("event")
+            .leftJoinAndSelect("event.user", "user")
+            .delete()
+            .from(Event)
+            .where("event.id = :id", { id: deleteEventInput.id })
+            .andWhere("user.id = :userId", { userId: user.id })
+            .returning("*")
+            .execute()).raw[0];
+
+        return deletedEvent;
     }
 
     async fetchAll(): Promise<Event[]> {

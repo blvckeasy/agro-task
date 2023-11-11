@@ -1,4 +1,4 @@
-export interface UserSearchParams {
+export interface SearchUserInterface {
     id?: number;
     username?: string; 
 }

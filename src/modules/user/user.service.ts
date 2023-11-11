@@ -8,7 +8,7 @@ import { JwtService } from "@nestjs/jwt";
 import { convertTypes } from "src/utils/convertTypes";
 import { LoginUserInput } from "./dto/login-user.input";
 import { UserResponseInterface } from './interface/user-response.interface'
-import { UserSearchParams } from "./dto/search-param.interface";
+import { SearchUserInterface } from "./dto/search-user.interface";
 
 export type UserResponseType = {
     id: number;
@@ -28,7 +28,7 @@ export class UserService {
         return users;
     }
 
-    async findOne(params: UserSearchParams): Promise<User> {
+    async findOne(params: SearchUserInterface): Promise<User> {
         const foundUser: Promise<User> = this.userRepository.findOneBy(params);
         return foundUser;
     }
