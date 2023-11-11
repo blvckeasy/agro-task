@@ -9,11 +9,9 @@ type Location {
   events: Event!
 }
 
-type User {
-  id: Int!
+type UserResponse {
+  id: Float!
   username: String!
-  password: String!
-  events: Event!
 }
 
 type Event {
@@ -22,7 +20,7 @@ type Event {
   description: String!
   startDate: DateTime!
   endDate: DateTime!
-  user: User!
+  user: UserResponse!
   location: Location!
 }
 
@@ -31,13 +29,20 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
-type UserResponse {
+type LoginResponseObject {
+  id: Float!
+  username: String!
+  token: String!
+}
+
+type RegisterResponseObject {
   id: Float!
   username: String!
   token: String!
 }
 
 type Query {
+  getMyEvents: [Event!]!
   users: [UserResponse!]!
   test: [UserResponse!]!
 }
@@ -46,8 +51,8 @@ type Mutation {
   createEvent(createEventInput: CreateEventInput!): Event!
   editEvent(editEventInput: EditEventInput!): Event!
   deleteEvent(deleteEventInput: DeleteEventInput!): Event!
-  register(createUserInput: CreateUserInput!): UserResponse!
-  login(loginUserInput: LoginUserInput!): UserResponse!
+  register(createUserInput: CreateUserInput!): RegisterResponseObject!
+  login(loginUserInput: LoginUserInput!): LoginResponseObject!
 }
 
 input CreateEventInput {

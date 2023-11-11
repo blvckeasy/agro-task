@@ -6,6 +6,10 @@ import { UserResponse } from "./dto/user-response.dto";
 import { LoginUserInput } from "./dto/login-user.input";
 import { BadGatewayException, ContextType, NotFoundException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
+import { LoginResponseInterface } from "./interface/login-response.interface";
+import { LoginResponseObject } from "./dto/login-response.object";
+import { RegisterResponseObject } from "./dto/register-response.object";
+import { RegisterResponseInterface } from "./interface/register-response.interface";
 
 
 @Resolver(of => User)
@@ -35,19 +39,19 @@ export class UserResolver {
         return this.userService.findAll();
     }
 
-    @Mutation(returns => UserResponse)
+    @Mutation(returns => RegisterResponseObject)
     register (
         @Args('createUserInput') createUserInput: CreateUserInput,
         @Context() context: any,
-    ): Promise<UserResponse> {
+    ): Promise<RegisterResponseInterface> {
         return this.userService.register(createUserInput, context);
     }
 
-    @Mutation(returns => UserResponse)
+    @Mutation(returns => LoginResponseObject)
     login (
         @Args("loginUserInput") loginUserInput: LoginUserInput,
         @Context() context: any,
-    ): Promise<UserResponse> {
+    ): Promise<LoginResponseInterface> {
         return this.userService.login(loginUserInput, context);
     }
 }

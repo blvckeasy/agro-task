@@ -2,6 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 't
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { Location } from '../location/location.entity';
 import { User } from '../user/user.entity';
+import { UserResponse } from '../user/dto/user-response.dto';
 
 @Entity()
 @ObjectType()
@@ -28,8 +29,8 @@ export class Event {
     
     @JoinColumn({ name: 'userId' })
     @ManyToOne(() => User, (user) => user.events)
-    @Field(type => User, { nullable: false })
-    user: User;
+    @Field(type => UserResponse, { nullable: false })
+    user: UserResponse;
 
     @JoinColumn({ name: 'locationId' })
     @ManyToOne(() => Location, (location) => location.events)

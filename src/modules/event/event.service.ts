@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { Event } from './event.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -18,6 +18,22 @@ export class EventService {
         @InjectRepository(Location) private locationRepository: Repository<Location>,
         @InjectRepository(User) private readonly userRepository: Repository<User>,
     ) {}
+
+    async getMyEvents(user: TokenParseUser): Promise<Event[]> {
+        const foundUser: User = await this.userRepository.findOneBy({
+            id: user.id,
+        })
+        if (!foundUser) throw new ForbiddenException("User not found!");
+
+        const events: Event[] = await this.eventRepository
+            .createQueryBuilder("event")
+            .andWhere("event.user.id = :userId", { userId: foundUser.id })
+            .leftJoinAndSelect("event.user", "user")
+            .leftJoinAndSelect("event.location", "location")
+            .getMany();
+            
+        return events;
+    }
 
     async createEvent(createEventInput: CreateEventInput, user: TokenParseUser): Promise<Event> {
         const newLocation: Location = this.locationRepository.create(createEventInput.location);

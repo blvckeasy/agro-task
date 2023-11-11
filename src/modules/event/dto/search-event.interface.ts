@@ -1,5 +1,5 @@
 import { Location } from "src/modules/location/location.entity";
-import { SearchUserInterface } from "src/modules/user/dto/search-user.interface";
+import { SearchUserInterface } from "src/modules/user/interface/search-user.interface";
 import { User } from "src/modules/user/user.entity";
 
 export class SearchEventInterface {

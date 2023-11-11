@@ -6,6 +6,7 @@ import { CreateEventInput } from './dto/create-event.input';
 import { JwtService } from "@nestjs/jwt";
 import { EditEventInput } from "./dto/edit-event.input";
 import { DeleteEventInput } from "./dto/delete-event.input";
+import { TokenParseUser } from "../user/dto/token-parse-user.object";
 
 
 @Resolver(of => Event)
@@ -15,13 +16,22 @@ export class EventResolver {
         private jwtService: JwtService,
     ) {}
 
+    @Query(returns => [Event])
+    getMyEvents (
+        @Context() ctx: any,
+    ): Promise<Event[]> {
+        const { token }= ctx.req.headers;
+        const user: TokenParseUser = this.jwtService.verify(token);
+        return this.eventService.getMyEvents(user);
+    }
+
     @Mutation(returns => Event)
     createEvent(
         @Args('createEventInput') createEventInput: CreateEventInput,
         @Context() ctx: any
     ): Promise<Event> {
         const { token } = ctx.req.headers;
-        const user = this.jwtService.verify(token);
+        const user: TokenParseUser = this.jwtService.verify(token);
         const newEvent: Promise<Event> = this.eventService.createEvent(createEventInput, user);
         return newEvent;
     }
@@ -31,8 +41,8 @@ export class EventResolver {
         @Args('editEventInput') editEventInput: EditEventInput,
         @Context() ctx: any,
     ): Promise<Event> {
-        const { token } = ctx.req.headers;
-        const user = this.jwtService.verify(token);
+        const { token }= ctx.req.headers;
+        const user: TokenParseUser = this.jwtService.verify(token);
 
         const editedEvent: Promise<Event> = this.eventService.editEvent(editEventInput, user);
         return editedEvent
@@ -43,8 +53,8 @@ export class EventResolver {
         @Args('deleteEventInput') deleteEventInput: DeleteEventInput,
         @Context() ctx: any,
     ) {
-        const { token } = ctx.req.headers;
-        const user = this.jwtService.verify(token);
+        const { token }= ctx.req.headers;
+        const user: TokenParseUser = this.jwtService.verify(token);
 
         return this.eventService.deleteEvent(deleteEventInput, user);
     }
