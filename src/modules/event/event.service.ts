@@ -1,7 +1,7 @@
 import { ForbiddenException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { Event } from './event.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { LimitOnUpdateNotSupportedError, Repository } from 'typeorm';
 import { CreateEventInput } from './dto/create-event.input';
 import { Location } from '../location/location.entity';
 import { User } from '../user/user.entity';
@@ -9,6 +9,8 @@ import { CreateEventObject } from './dto/create-event.object';
 import { EditEventInput } from './dto/edit-event.input';
 import { TokenParseUser } from '../user/dto/token-parse-user.object';
 import { DeleteEventInput } from './dto/delete-event.input';
+import { SearchEventInput } from './dto/search-event.input';
+import { EventPaginationInterface } from 'src/config/interface/event-pagination.interface';
 
 
 @Injectable()
@@ -19,22 +21,41 @@ export class EventService {
         @InjectRepository(User) private readonly userRepository: Repository<User>,
     ) {}
 
-    async getMyEvents(user: TokenParseUser): Promise<Event[]> {
+    async getMyEvents(user: TokenParseUser, pagination: EventPaginationInterface): Promise<Event[]> {
         const foundUser: User = await this.userRepository.findOneBy({
             id: user.id,
         })
         if (!foundUser) throw new ForbiddenException("User not found!");
+        const { page, limit } = pagination;
 
         const events: Event[] = await this.eventRepository
             .createQueryBuilder("event")
             .andWhere("event.user.id = :userId", { userId: foundUser.id })
             .leftJoinAndSelect("event.user", "user")
             .leftJoinAndSelect("event.location", "location")
+            .offset(page * limit - limit)
+            .limit(limit)
             .getMany();
-            
+
         return events;
     }
 
+    async getEvents (searchEventInput: SearchEventInput, pagination: EventPaginationInterface): Promise<Event[]> {
+        const { page, limit } = pagination;
+        const events: Event[] = await this.eventRepository.findBy(searchEventInput);
+
+        return events.slice(page * limit - limit, limit);
+    }
+
+    async getEventWithID (ID: number): Promise<Event> {
+        const event = await this.eventRepository.findOneBy({
+            id: ID,
+        })
+
+        if (!event) throw new NotFoundException("Event is not found!");
+        return event;
+    }
+    
     async createEvent(createEventInput: CreateEventInput, user: TokenParseUser): Promise<Event> {
         const newLocation: Location = this.locationRepository.create(createEventInput.location);
         const insertLocation: Location = await this.locationRepository.save(newLocation);

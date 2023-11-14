@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, CreateDateColumn } from 'typeorm';
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { Location } from '../location/location.entity';
 import { User } from '../user/user.entity';
@@ -19,11 +19,11 @@ export class Event {
     @Field()
     description: string;
     
-    @Column({ type: 'timestamp', nullable: false })
+    @CreateDateColumn({ type: 'timestamptz', nullable: false })
     @Field(type => Date, { nullable: false })
     startDate: Date;
     
-    @Column({ type: 'timestamp', nullable: false })
+    @CreateDateColumn({ type: 'timestamp', nullable: false })
     @Field(type => Date, { nullable: false })
     endDate: Date;
     

@@ -48,11 +48,31 @@ type Query {
 }
 
 type Mutation {
+  getEventWithID(getEventInput: Float!): Event!
+  getEvents(searchEventInput: SearchEventInput!): [Event!]!
   createEvent(createEventInput: CreateEventInput!): Event!
   editEvent(editEventInput: EditEventInput!): Event!
   deleteEvent(deleteEventInput: DeleteEventInput!): Event!
   register(createUserInput: CreateUserInput!): RegisterResponseObject!
   login(loginUserInput: LoginUserInput!): LoginResponseObject!
+}
+
+input SearchEventInput {
+  startDate: DateTime
+  endDate: DateTime
+  user: SearchUserInput
+  location: SearchLocationInput
+}
+
+input SearchUserInput {
+  id: Int
+  username: String
+}
+
+input SearchLocationInput {
+  id: Float
+  x_coordinate: Float
+  y_coordinate: Float
 }
 
 input CreateEventInput {

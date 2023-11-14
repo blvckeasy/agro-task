@@ -7,6 +7,8 @@ import { JwtService } from "@nestjs/jwt";
 import { EditEventInput } from "./dto/edit-event.input";
 import { DeleteEventInput } from "./dto/delete-event.input";
 import { TokenParseUser } from "../user/dto/token-parse-user.object";
+import { SearchEventInput } from "./dto/search-event.input";
+import { DefaultEventPagination } from "src/config/configuration";
 
 
 @Resolver(of => Event)
@@ -21,10 +23,32 @@ export class EventResolver {
         @Context() ctx: any,
     ): Promise<Event[]> {
         const { token }= ctx.req.headers;
+
+        const page = ctx.req.query.page || DefaultEventPagination.page;
+        const limit = ctx.req.query.limit || DefaultEventPagination.limit;
+
         const user: TokenParseUser = this.jwtService.verify(token);
-        return this.eventService.getMyEvents(user);
+        return this.eventService.getMyEvents(user, { page, limit });
     }
 
+    @Mutation(returns => Event)
+    getEventWithID (
+        @Args('getEventInput') ID: number,
+    ): Promise<Event> {
+        return this.eventService.getEventWithID(ID);
+    }
+
+    @Mutation(returns => [Event])
+    getEvents (
+        @Args('searchEventInput') searchEventInput: SearchEventInput,
+        @Context() ctx: any,
+    ): Promise<Event[]> {
+        const page = ctx.req.query.page || DefaultEventPagination.page;
+        const limit = ctx.req.query.limit || DefaultEventPagination.limit;
+
+        return this.eventService.getEvents(searchEventInput, { page, limit });
+    }
+    
     @Mutation(returns => Event)
     createEvent(
         @Args('createEventInput') createEventInput: CreateEventInput,
