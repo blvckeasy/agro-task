@@ -56,6 +56,7 @@ export class EventService {
         })
 
         const events: Event[] = await selectEventQuery
+            .orderBy("event.startDate", "ASC")
             .offset(page * limit - limit)
             .limit(limit)
             .getMany();
