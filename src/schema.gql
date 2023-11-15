@@ -43,6 +43,7 @@ type RegisterResponseObject {
 
 type Query {
   getMyEvents: [Event!]!
+  getTodayEvents: [Event!]!
   users: [UserResponse!]!
   test: [UserResponse!]!
 }

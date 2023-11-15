@@ -1,7 +1,7 @@
 import { ForbiddenException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { Event } from './event.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { LimitOnUpdateNotSupportedError, Repository } from 'typeorm';
+import { LessThan, LimitOnUpdateNotSupportedError, MoreThan, Repository } from 'typeorm';
 import { CreateEventInput } from './dto/create-event.input';
 import { Location } from '../location/location.entity';
 import { User } from '../user/user.entity';
@@ -41,10 +41,22 @@ export class EventService {
     }
 
     async getEvents (searchEventInput: SearchEventInput, pagination: EventPaginationInterface): Promise<Event[]> {
+        const currentDate = new Date();
         const { page, limit } = pagination;
-        const events: Event[] = await this.eventRepository.findBy(searchEventInput);
 
-        return events.slice(page * limit - limit, limit);
+        const events: Event[] = await this.eventRepository.find({
+            where: {
+                ...searchEventInput,
+                endDate: searchEventInput.endDate || MoreThan(currentDate)
+            },
+            order: {
+                startDate: 'ASC',
+            },
+            skip: page * limit - limit,
+            take: limit,
+        });
+
+        return events;
     }
 
     async getEventWithID (ID: number): Promise<Event> {
@@ -54,6 +66,20 @@ export class EventService {
 
         if (!event) throw new NotFoundException("Event is not found!");
         return event;
+    }
+
+    async getTodayEvents(): Promise<Event[]> {
+        const currentDate = new Date();
+        const currentDateStr = currentDate.toISOString().split('T')[0];
+        const activeEvents: Event[] = await this.eventRepository
+            .createQueryBuilder('entity')
+            .where(
+                `DATE_FORMAT(:currentDate, '%Y-%m-%dT%H:%i:%s.000Z') BETWEEN entity.startDate AND entity.endDate`,
+                { currentDate: currentDateStr }
+            )
+            .getMany();
+
+        return activeEvents;
     }
     
     async createEvent(createEventInput: CreateEventInput, user: TokenParseUser): Promise<Event> {

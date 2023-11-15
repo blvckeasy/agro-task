@@ -49,6 +49,11 @@ export class EventResolver {
         return this.eventService.getEvents(searchEventInput, { page, limit });
     }
     
+    @Query(returns => [Event])
+    getTodayEvents () {
+        return this.eventService.getTodayEvents();
+    }
+
     @Mutation(returns => Event)
     createEvent(
         @Args('createEventInput') createEventInput: CreateEventInput,
