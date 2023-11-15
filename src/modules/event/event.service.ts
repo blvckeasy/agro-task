@@ -1,7 +1,7 @@
 import { ForbiddenException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { Event } from './event.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { LessThan, LimitOnUpdateNotSupportedError, MoreThan, Repository } from 'typeorm';
+import { LessThan, LimitOnUpdateNotSupportedError, MoreThan, Repository, SelectQueryBuilder } from 'typeorm';
 import { CreateEventInput } from './dto/create-event.input';
 import { Location } from '../location/location.entity';
 import { User } from '../user/user.entity';
@@ -30,7 +30,7 @@ export class EventService {
 
         const events: Event[] = await this.eventRepository
             .createQueryBuilder("event")
-            .andWhere("event.user.id = :userId", { userId: foundUser.id })
+            .where("event.user.id = :userId", { userId: foundUser.id })
             .leftJoinAndSelect("event.user", "user")
             .leftJoinAndSelect("event.location", "location")
             .offset(page * limit - limit)
@@ -44,17 +44,21 @@ export class EventService {
         const currentDate = new Date();
         const { page, limit } = pagination;
 
-        const events: Event[] = await this.eventRepository.find({
-            where: {
-                ...searchEventInput,
-                endDate: searchEventInput.endDate || MoreThan(currentDate)
-            },
-            order: {
-                startDate: 'ASC',
-            },
-            skip: page * limit - limit,
-            take: limit,
-        });
+        console.log(searchEventInput);
+
+        const selectEventQuery: SelectQueryBuilder<Event> = this.eventRepository
+            .createQueryBuilder("event")
+            .leftJoinAndSelect("event.user", "user")
+            .leftJoinAndSelect("event.location", "location")
+        
+        Object.entries(searchEventInput).forEach(([key, value]) => {
+            selectEventQuery.andWhere(`event.${key} = :${key}`, { [key]: value });
+        })
+
+        const events: Event[] = await selectEventQuery
+            .offset(page * limit - limit)
+            .limit(limit)
+            .getMany();
 
         return events;
     }
