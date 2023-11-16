@@ -44,8 +44,6 @@ export class EventService {
         const currentDate = new Date();
         const { page, limit } = pagination;
 
-        console.log(searchEventInput);
-
         const selectEventQuery: SelectQueryBuilder<Event> = this.eventRepository
             .createQueryBuilder("event")
             .leftJoinAndSelect("event.user", "user")
@@ -54,6 +52,10 @@ export class EventService {
         Object.entries(searchEventInput).forEach(([key, value]) => {
             selectEventQuery.andWhere(`event.${key} = :${key}`, { [key]: value });
         })
+
+        if (!searchEventInput.startDate) {
+            selectEventQuery.andWhere("event.startDate > :currentDate", { currentDate });
+        }
 
         const events: Event[] = await selectEventQuery
             .orderBy("event.startDate", "ASC")
