@@ -6,7 +6,8 @@ import { EventModule } from './modules/event/event.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './modules/user/user.module';
 import { JwtModule } from '@nestjs/jwt';
-import { jwtConfig } from './config/configuration';
+import configuration from './config/configuration';
+import { ConfigModule } from '@nestjs/config';
 
 
 @Module({
@@ -15,19 +16,13 @@ import { jwtConfig } from './config/configuration';
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), 'src', 'schema.gql'),
     }),
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'postgres',
-      password: '1029',
-      database: 'task',
-      entities: [
-        __dirname + '/modules/**/*.entity{.ts,.js}',
-      ],
-      synchronize: true,
+    ConfigModule.forRoot({
+      envFilePath: ".env",
+      load: [configuration],
+      isGlobal: true,
     }),
-    JwtModule.register(jwtConfig),
+    TypeOrmModule.forRoot(configuration().typeOrmModuleOptions),
+    JwtModule.register(configuration().jwtConfig),
     EventModule,
     UserModule,
   ],

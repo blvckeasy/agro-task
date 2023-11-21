@@ -8,7 +8,7 @@ import { EditEventInput } from "./dto/edit-event.input";
 import { DeleteEventInput } from "./dto/delete-event.input";
 import { TokenParseUser } from "../user/dto/token-parse-user.object";
 import { SearchEventInput } from "./dto/search-event.input";
-import { DefaultEventPagination } from "src/config/configuration";
+import { ConfigService } from "@nestjs/config";
 
 
 @Resolver(of => Event)
@@ -16,6 +16,7 @@ export class EventResolver {
     constructor (
         private eventService: EventService,
         private jwtService: JwtService,
+        private configService: ConfigService,
     ) {}
 
     @Query(returns => [Event])
@@ -24,8 +25,8 @@ export class EventResolver {
     ): Promise<Event[]> {
         const { token }= ctx.req.headers;
 
-        const page = ctx.req.query.page || DefaultEventPagination.page;
-        const limit = ctx.req.query.limit || DefaultEventPagination.limit;
+        const page = ctx.req.query.page || this.configService.get("defaultEventPagination").page;
+        const limit = ctx.req.query.limit || this.configService.get("defaultEventPagination").limit;
 
         const user: TokenParseUser = this.jwtService.verify(token);
         return this.eventService.getMyEvents(user, { page, limit });
@@ -43,8 +44,8 @@ export class EventResolver {
         @Args('searchEventInput') searchEventInput: SearchEventInput,
         @Context() ctx: any,
     ): Promise<Event[]> {
-        const page = ctx.req.query.page || DefaultEventPagination.page;
-        const limit = ctx.req.query.limit || DefaultEventPagination.limit;
+        const page = ctx.req.query.page || this.configService.get("defaultEventPagination").page;
+        const limit = ctx.req.query.limit || this.configService.get("defaultEventPagination").limit;
 
         return this.eventService.getEvents(searchEventInput, { page, limit });
     }

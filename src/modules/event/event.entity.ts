@@ -4,7 +4,7 @@ import { Location } from '../location/location.entity';
 import { User } from '../user/user.entity';
 import { UserResponse } from '../user/dto/user-response.dto';
 
-@Entity()
+@Entity({ name: "events" })
 @ObjectType()
 export class Event {
     @PrimaryGeneratedColumn()

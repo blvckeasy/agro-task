@@ -24,7 +24,7 @@ export class EventService {
     async getMyEvents(user: TokenParseUser, pagination: EventPaginationInterface): Promise<Event[]> {
         const foundUser: User = await this.userRepository.findOneBy({
             id: user.id,
-        })
+        });
         if (!foundUser) throw new ForbiddenException("User not found!");
         const { page, limit } = pagination;
 
@@ -91,11 +91,11 @@ export class EventService {
     
     async createEvent(createEventInput: CreateEventInput, user: TokenParseUser): Promise<Event> {
         const newLocation: Location = this.locationRepository.create(createEventInput.location);
-        const insertLocation: Location = await this.locationRepository.save(newLocation);
         const foundUser: User = await this.userRepository.findOneBy({ id: user.id });
 
         if (!foundUser) throw new UnauthorizedException("User not found!");
-
+        
+        const insertLocation: Location = await this.locationRepository.save(newLocation);
         const createEvent: CreateEventObject = {
             ...createEventInput,
             user: foundUser,

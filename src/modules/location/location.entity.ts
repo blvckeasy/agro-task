@@ -2,7 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { Event } from '../event/event.entity';
 import { Field, Float, Int, ObjectType } from '@nestjs/graphql';
 
-@Entity()
+@Entity({ name: "locations" })
 @ObjectType()
 export class Location {
 
